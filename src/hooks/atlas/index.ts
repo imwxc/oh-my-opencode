@@ -3,9 +3,11 @@ import { execSync } from "node:child_process"
 import { existsSync, readdirSync } from "node:fs"
 import { join } from "node:path"
 import {
-  readBoulderState,
-  appendSessionId,
+readBoulderState,
+appendSessionId,
   getPlanProgress,
+  archivePlan,
+  clearBoulderState,
 } from "../../features/boulder-state"
 import { getMainSessionID, subagentSessions } from "../../features/claude-code-session-state"
 import { findNearestMessageWithFields, MESSAGE_STORAGE } from "../../features/hook-message-injector"
@@ -575,11 +577,28 @@ export function createAtlasHook(
           return
         }
 
-        const progress = getPlanProgress(boulderState.active_plan)
-        if (progress.isComplete) {
+const progress = getPlanProgress(boulderState.active_plan)
+if (progress.isComplete) {
           log(`[${HOOK_NAME}] Boulder complete`, { sessionID, plan: boulderState.plan_name })
-          return
-        }
+
+          // Auto-archive the completed plan
+          const archiveResult = archivePlan(ctx.directory, boulderState.plan_name)
+          if (archiveResult.success) {
+            clearBoulderState(ctx.directory)
+            log(`[${HOOK_NAME}] Plan archived successfully`, {
+              sessionID,
+              plan: boulderState.plan_name,
+              archivedPath: archiveResult.archivedPlanPath
+            })
+          } else {
+            log(`[${HOOK_NAME}] Plan archival failed`, {
+              sessionID,
+              plan: boulderState.plan_name,
+              error: archiveResult.error
+            })
+          }
+return
+}
 
         const now = Date.now()
         if (state.lastContinuationInjectedAt && now - state.lastContinuationInjectedAt < CONTINUATION_COOLDOWN_MS) {
