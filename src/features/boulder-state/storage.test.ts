@@ -188,6 +188,91 @@ describe("boulder-state", () => {
       expect(first?.success).toBe(true)
       expect(second?.success).toBe(false)
     })
+
+    test("#6 archivePlan handles plan names with spaces", () => {
+      // #given - plan name with spaces
+      const planName = "my plan name"
+      const planDir = join(TEST_DIR, PROMETHEUS_PLANS_DIR)
+      if (!existsSync(planDir)) mkdirSync(planDir, { recursive: true })
+      const sourcePlan = join(planDir, planName + ".md")
+      writeFileSync(sourcePlan, "# Plan with spaces in name")
+
+      // #when
+      const result: any = archivePlan(TEST_DIR, planName)
+
+      // #then
+      const archivedPlanPath = join(TEST_DIR, COMPLETED_PLANS_DIR, planName + ".md")
+      expect(result?.success).toBe(true)
+      expect(existsSync(archivedPlanPath)).toBe(true)
+      expect(existsSync(sourcePlan)).toBe(false)
+    })
+
+    test("#7 archivePlan handles Unicode plan names", () => {
+      // #given - plan name with Chinese characters
+      const planName = "测试计划"
+      const planDir = join(TEST_DIR, PROMETHEUS_PLANS_DIR)
+      if (!existsSync(planDir)) mkdirSync(planDir, { recursive: true })
+      const sourcePlan = join(planDir, planName + ".md")
+      writeFileSync(sourcePlan, "# Unicode 测试")
+      const notepadDir = join(TEST_DIR, NOTEPAD_BASE_PATH)
+      if (!existsSync(notepadDir)) mkdirSync(notepadDir, { recursive: true })
+      writeFileSync(join(notepadDir, planName + ".md"), "笔记")
+
+      // #when
+      const result: any = archivePlan(TEST_DIR, planName)
+
+      // #then
+      const archivedPlanPath = join(TEST_DIR, COMPLETED_PLANS_DIR, planName + ".md")
+      const archivedNotepadPath = join(TEST_DIR, COMPLETED_NOTEPAD_DIR, planName + ".md")
+      expect(result?.success).toBe(true)
+      expect(existsSync(archivedPlanPath)).toBe(true)
+      expect(existsSync(archivedNotepadPath)).toBe(true)
+    })
+
+    test("#8 archivePlan fails gracefully when plans directory is empty", () => {
+      // #given - empty plans directory (plan does not exist)
+      const planDir = join(TEST_DIR, PROMETHEUS_PLANS_DIR)
+      if (!existsSync(planDir)) mkdirSync(planDir, { recursive: true })
+      // No plans created
+
+      // #when
+      const result: any = archivePlan(TEST_DIR, "non-existent-plan")
+
+      // #then
+      expect(result?.success).toBe(false)
+      expect(result?.error).toContain("Source plan not found")
+    })
+
+    test("#9 archivePlan handles multiple sequential archives", () => {
+      // #given - multiple plans to archive
+      const planNames = ["plan-alpha", "plan-beta", "plan-gamma"]
+      const planDir = join(TEST_DIR, PROMETHEUS_PLANS_DIR)
+      if (!existsSync(planDir)) mkdirSync(planDir, { recursive: true })
+
+      planNames.forEach((name) => {
+        writeFileSync(join(planDir, name + ".md"), `# ${name}`)
+      })
+
+      // #when - archive all plans
+      const results = planNames.map((name) => archivePlan(TEST_DIR, name))
+
+      // #then - all should succeed
+      results.forEach((result: any) => {
+        expect(result?.success).toBe(true)
+      })
+
+      // All plans should be in completed directory
+      planNames.forEach((name) => {
+        const archivedPath = join(TEST_DIR, COMPLETED_PLANS_DIR, name + ".md")
+        expect(existsSync(archivedPath)).toBe(true)
+      })
+
+      // Original plans should be gone
+      planNames.forEach((name) => {
+        const originalPath = join(planDir, name + ".md")
+        expect(existsSync(originalPath)).toBe(false)
+      })
+    })
   })
 
   describe("writeBoulderState", () => {
