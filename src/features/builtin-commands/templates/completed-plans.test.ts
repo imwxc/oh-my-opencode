@@ -2,7 +2,7 @@ import { describe, expect, test, beforeEach, afterEach } from "bun:test"
 import { existsSync, mkdirSync, rmSync, writeFileSync, statSync } from "node:fs"
 import { join } from "node:path"
 import { tmpdir } from "node:os"
-import { COMPLETED_PLANS_DIR } from "../../features/boulder-state"
+import { COMPLETED_PLANS_DIR } from "../../boulder-state"
 
 // #given - RED phase: template module doesn't exist yet
 // These tests will fail until completed-plans.ts is implemented
