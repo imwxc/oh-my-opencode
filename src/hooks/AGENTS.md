@@ -155,3 +155,20 @@ Conditional rules injection from AGENTS.md, config, skill rules. Evaluates condi
 2. Register in appropriate tier file (`src/plugin/hooks/create-{tier}-hooks.ts`)
 3. Add hook name to `src/config/schema/hooks.ts` HookNameSchema
 4. Hook receives `(event, ctx)` — return value depends on event type
+
+## HOOK PERFORMANCE GUIDELINES
+
+- **Blocking non-critical**: Use PostToolUse warnings instead
+- **Heavy computation**: Keep PreToolUse light
+- **Redundant injection**: Track injected files
+
+## ATLAS AUTO-ARCHIVE BEHAVIOR
+
+When the Atlas hook detects that a plan is complete (all checkboxes marked), it automatically:
+
+1. Calls `archivePlan()` to move the plan from `.sisyphus/plans/` to `.sisyphus/plans/completed/`
+2. Moves the corresponding notepad directory if it exists
+3. Handles filename conflicts by auto-renaming (e.g., `plan-2.md`)
+4. Calls `clearBoulderState()` to clean up the boulder.json state file
+
+This ensures completed plans are automatically archived without manual intervention.

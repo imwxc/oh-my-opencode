@@ -14,7 +14,7 @@ oh-my-opencode/
 │   ├── index.ts              # Plugin entry: loadConfig → createManagers → createTools → createHooks → createPluginInterface
 │   ├── plugin-config.ts      # JSONC multi-level config: user → project → defaults (Zod v4)
 │   ├── agents/               # 11 agents (Sisyphus, Hephaestus, Oracle, Librarian, Explore, Atlas, Prometheus, Metis, Momus, Multimodal-Looker, Sisyphus-Junior)
-| `hooks/`                # 46 hooks across 39 directories + 6 standalone files
+│   ├── hooks/                # 46 hooks across 39 directories + 6 standalone files
 │   ├── tools/                # 26 tools across 15 directories
 │   ├── features/             # 19 feature modules (background-agent, skill-loader, tmux, MCP-OAuth, etc.)
 │   ├── shared/               # 100+ utility files in 13 categories
@@ -125,6 +125,31 @@ bunx oh-my-opencode run     # Non-interactive session
 | publish.yml | manual | Version bump, npm publish, platform binaries, GitHub release, merge to master |
 | publish-platform.yml | called | 11 platform binaries via bun compile (darwin/linux/windows) |
 | sisyphus-agent.yml | @mention | AI agent handles issues/PRs |
+
+## BOULDER-STATE
+
+### Archive Functions
+
+- **`archivePlan(directory, planName)`**: Archives a completed plan by moving it from `.sisyphus/plans/` to `.sisyphus/plans/completed/`. Also moves the corresponding notepad file if it exists. Handles name conflicts by auto-renaming (e.g., `plan-2.md`). Returns `ArchiveResult` with success status.
+
+- **`findCompletedPlans(directory)`**: Returns a list of archived plan files from `.sisyphus/plans/completed/`. Each entry includes the file path, sorted by modification time (newest first).
+
+### Commands
+
+- **`/completed-plans`**: Lists all archived/completed plans. Shows plan names and their archived timestamps. Displays a friendly message if no completed plans exist.
+
+## MCP ARCHITECTURE
+
+Three-tier system:
+1. **Built-in**: websearch (Exa), context7 (docs), grep_app (GitHub)
+2. **Claude Code compat**: .mcp.json with `${VAR}` expansion
+3. **Skill-embedded**: YAML frontmatter in skills
+
+## CONFIG SYSTEM
+
+- **Zod validation**: `src/config/schema.ts`
+- **JSONC support**: Comments, trailing commas
+- **Multi-level**: Project (`.opencode/`) → User (`~/.config/opencode/`)
 
 ## NOTES
 
