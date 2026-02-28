@@ -138,6 +138,31 @@ Three-tier system:
 - **JSONC support**: Comments, trailing commas
 - **Multi-level**: Project (`.opencode/`) → User (`~/.config/opencode/`)
 
+## BOULDER-STATE
+
+### Archive Functions
+
+- **`archivePlan(directory, planName)`**: Archives a completed plan by moving it from `.sisyphus/plans/` to `.sisyphus/plans/completed/`. Also moves the corresponding notepad file if it exists. Handles name conflicts by auto-renaming (e.g., `plan-2.md`). Returns `ArchiveResult` with success status.
+
+- **`findCompletedPlans(directory)`**: Returns a list of archived plan files from `.sisyphus/plans/completed/`. Each entry includes the file path, sorted by modification time (newest first).
+
+### Commands
+
+- **`/completed-plans`**: Lists all archived/completed plans. Shows plan names and their archived timestamps. Displays a friendly message if no completed plans exist.
+
+## MCP ARCHITECTURE
+
+Three-tier system:
+1. **Built-in**: websearch (Exa), context7 (docs), grep_app (GitHub)
+2. **Claude Code compat**: .mcp.json with `${VAR}` expansion
+3. **Skill-embedded**: YAML frontmatter in skills
+
+## CONFIG SYSTEM
+
+- **Zod validation**: `src/config/schema.ts`
+- **JSONC support**: Comments, trailing commas
+- **Multi-level**: Project (`.opencode/`) → User (`~/.config/opencode/`)
+
 ## NOTES
 
 - **OpenCode**: Requires >= 1.0.150

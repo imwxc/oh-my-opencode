@@ -4,22 +4,20 @@ import { INIT_DEEP_TEMPLATE } from "./templates/init-deep"
 import { RALPH_LOOP_TEMPLATE, CANCEL_RALPH_TEMPLATE } from "./templates/ralph-loop"
 import { REFACTOR_TEMPLATE } from "./templates/refactor"
 import { START_WORK_TEMPLATE } from "./templates/start-work"
+import { COMPLETED_PLANS_TEMPLATE } from "./templates/completed-plans"
 
 const BUILTIN_COMMAND_DEFINITIONS: Record<BuiltinCommandName, Omit<CommandDefinition, "name">> = {
   "init-deep": {
     description: "(builtin) Initialize hierarchical AGENTS.md knowledge base",
     template: `<command-instruction>
 ${INIT_DEEP_TEMPLATE}
-</command-instruction>
-
-<user-request>
-$ARGUMENTS
-</user-request>`,
+</command-instruction>`,
+  
     argumentHint: "[--create-new] [--max-depth=N]",
   },
-   "ralph-loop": {
-     description: "(builtin) Start self-referential development loop until completion",
-     template: `<command-instruction>
+  "ralph-loop": {
+    description: "(builtin) Start self-referential development loop until completion",
+    template: `<command-instruction>
 ${RALPH_LOOP_TEMPLATE}
 </command-instruction>
 
@@ -58,17 +56,14 @@ ${REFACTOR_TEMPLATE}
     agent: "atlas",
     template: `<command-instruction>
 ${START_WORK_TEMPLATE}
-</command-instruction>
-
-<session-context>
-Session ID: $SESSION_ID
-Timestamp: $TIMESTAMP
-</session-context>
-
-<user-request>
-$ARGUMENTS
-</user-request>`,
+</command-instruction>`,
     argumentHint: "[plan-name]",
+  },
+  "completed-plans": {
+    description: "(builtin) List completed plans",
+    template: `<command-instruction>
+${COMPLETED_PLANS_TEMPLATE}
+</command-instruction>`,
   },
 }
 
